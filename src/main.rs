@@ -14,6 +14,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
+use lazy_static::lazy_static;
+use regex::Regex;
+
 
 fn day1_a(input_path:String) -> Result<(), Error> {
 
@@ -50,7 +53,7 @@ fn evaluate(current:u32, prev:u32) -> u32{
     result
 }
 
-fn day1_b(input_path:String) -> Result<(), Error> {
+fn day1_b(input_path:String) -> Result<String, Error> {
 
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
@@ -86,17 +89,43 @@ fn day1_b(input_path:String) -> Result<(), Error> {
         
         counter = counter + evaluate(current_meassure, prev_meassure);
     }       
-
+    let result:String = format!("{}", counter);
     println!("Day 1 Exercise B: {}", counter);
-    
-    Ok(())
+
+    Ok(result)
 }
 
+/* Day 2 */
+
+#[derive(Debug, PartialEq)]
+struct Submarine {
+    position: u32,  
+    depth: u32
+}
+
+
+
+fn day2(input_path:String) -> Result<String, Error> {
+    let result:String = "0".to_string();
+
+    let input = File::open(input_path)?;
+    let buffered = BufReader::new(input);
+
+    for line in buffered.lines() {
+        let current:String = line?.parse().unwrap();
+        let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+        
+    }
+
+    Ok(result)
+}
 
 fn main() -> Result<(), Error> {
     //day1_a("day1_input.txt".to_string())?;
     //day1_b("day1_b_test.txt".to_string())?;
-    day1_b("day1_input.txt".to_string())?; // Answer: 1516
+    //let result:String = day1_b("./input/day1_input.txt".to_string()).unwrap(); // Answer: 1516
+    let result:String = day2("./input/day2_input.txt".to_string()).unwrap(); // Answer: 1516
+
     Ok(())
 }
 
