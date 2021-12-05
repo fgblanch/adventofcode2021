@@ -14,7 +14,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
-use lazy_static::lazy_static;
 use regex::Regex;
 
 
@@ -99,7 +98,7 @@ fn day1_b(input_path:String) -> Result<String, Error> {
 
 #[derive(Debug, PartialEq)]
 struct Submarine {
-    position: u32,  
+    pos: u32,  
     depth: u32
 }
 
@@ -107,15 +106,33 @@ struct Submarine {
 
 fn day2(input_path:String) -> Result<String, Error> {
     let result:String = "0".to_string();
-
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
 
+    let mut sub:Submarine = Submarine{pos: 0, depth:0};
+
+    let re = Regex::new(r"^(up|down|forward) (\d)$").unwrap();
+
     for line in buffered.lines() {
-        let current:String = line?.parse().unwrap();
-        let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
-        
+        let current:String = line?;
+        let caps = re.captures(&current).unwrap();
+        let command = caps.get(1).unwrap().as_str();
+        let step:u32 = caps.get(2).unwrap().as_str().parse().unwrap();
+        match command {
+            "up"      => {sub = Submarine{ pos:sub.pos, depth: sub.depth-step}},
+            "down"    => {sub = Submarine{ pos:sub.pos, depth: sub.depth+step}},
+            "forward" => {sub = Submarine{ pos:sub.pos+step, depth:sub.depth}}
+            _ => {println!("No");}
+        }
+
+        //println!("{}", command);
+        //println!("{}", step);
+       
     }
+
+    println!("{:?}", sub);
+
+
 
     Ok(result)
 }
