@@ -99,7 +99,8 @@ fn day1_b(input_path:String) -> Result<String, Error> {
 #[derive(Debug, PartialEq)]
 struct Submarine {
     pos: u32,  
-    depth: u32
+    depth: u32,
+    aim: u32
 }
 
 
@@ -109,7 +110,7 @@ fn day2(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
 
-    let mut sub:Submarine = Submarine{pos: 0, depth:0};
+    let mut sub:Submarine = Submarine{pos: 0, depth:0, aim:0};
 
     let re = Regex::new(r"^(up|down|forward) (\d)$").unwrap();
 
@@ -119,19 +120,19 @@ fn day2(input_path:String) -> Result<String, Error> {
         let command = caps.get(1).unwrap().as_str();
         let step:u32 = caps.get(2).unwrap().as_str().parse().unwrap();
         match command {
-            "up"      => {sub = Submarine{ pos:sub.pos, depth: sub.depth-step}},
-            "down"    => {sub = Submarine{ pos:sub.pos, depth: sub.depth+step}},
-            "forward" => {sub = Submarine{ pos:sub.pos+step, depth:sub.depth}}
+            "up"      => {sub = Submarine{ pos:sub.pos, aim: sub.aim-step, depth: sub.depth}},
+            "down"    => {sub = Submarine{ pos:sub.pos, aim: sub.aim+step, depth: sub.depth}},
+            "forward" => {sub = Submarine{ pos:sub.pos+step, aim:sub.aim, depth: sub.depth + (sub.aim * step)}}
             _ => {println!("No");}
         }
 
-        //println!("{}", command);
+
         //println!("{}", step);
        
     }
 
     println!("{:?}", sub);
-
+    println!("{}", sub.pos * sub.depth);
 
 
     Ok(result)
