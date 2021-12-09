@@ -219,20 +219,20 @@ fn findRating(numbers:Vec<String>, most_common:bool, bit_number:u32) -> Result<S
         let next_bit_number:u32 =  bit_number+1;
         let counter_zeroes:u32 = numbers_len - counter;
         //println!("ones: {} zeroes {}", counter, counter_zeroes);
-        
-        if most_common{
-            if counter>=counter_zeroes{ // 1 is most common
+                
+        if counter>=counter_zeroes{ // 1 is most common
+            if most_common{ // are we looking for the most or least common?
                 result = findRating(ones, most_common,next_bit_number)?;
-            }else{ // 0 is most common
+            }else{
                 result = findRating(zeroes, most_common, next_bit_number)?;
             }
-        }else{
-            if counter>=counter_zeroes{ // 1 is least common
+        }else{ // 0 is most common
+            if most_common{ // are we looking for the most or least common?
                 result = findRating(zeroes, most_common, next_bit_number)?;
-            }else{ // 0 is least common
+            }else{
                 result = findRating(ones, most_common, next_bit_number)?;
             }
-        }
+        }        
         
     }
 
