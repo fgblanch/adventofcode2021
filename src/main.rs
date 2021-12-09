@@ -138,11 +138,37 @@ fn day2(input_path:String) -> Result<String, Error> {
     Ok(result)
 }
 
+fn day3(input_path:String) -> Result<String, Error> {
+    let result:String = "0".to_string();
+    let input = File::open(input_path)?;
+    let buffered = BufReader::new(input);
+
+    let mut line_counter:u32 = 0;
+    let mut one_counters:[u32; 12] = [0;12];
+
+
+    for line in buffered.lines() {        
+        let current:String = line?;
+        
+        let word_len = current.len();
+        for c in 1..world_len {
+            println!("{} {}", c, current.get(c));
+        }
+        
+        line_counter = line_counter + 1;
+    }
+    
+    Ok(result)
+}
+
+
 fn main() -> Result<(), Error> {
     //day1_a("day1_input.txt".to_string())?;
     //day1_b("day1_b_test.txt".to_string())?;
     //let result:String = day1_b("./input/day1_input.txt".to_string()).unwrap(); // Answer: 1516
-    let result:String = day2("./input/day2_input.txt".to_string()).unwrap(); // Answer: 1516
+    //let result:String = day2("./input/day2_input.txt".to_string()).unwrap();
+
+    let result:String = day3("./input/day3_input.txt".to_string()).unwrap();
 
     Ok(())
 }
