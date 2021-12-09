@@ -139,7 +139,7 @@ fn day2(input_path:String) -> Result<String, Error> {
 }
 
 fn day3(input_path:String) -> Result<String, Error> {
-    let result:String = "0".to_string();
+    let mut result:String = String::from("");
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
 
@@ -150,14 +150,37 @@ fn day3(input_path:String) -> Result<String, Error> {
     for line in buffered.lines() {        
         let current:String = line?;
         
-        let word_len = current.len();
-        for c in 1..world_len {
-            println!("{} {}", c, current.get(c));
+        for (i,c) in current.chars().enumerate() {
+            if c == '1'{
+                one_counters[i] = one_counters[i] + 1;
+            }                        
         }
         
         line_counter = line_counter + 1;
     }
-    
+
+    let mut gamma:String = String::from("");
+    let mut epsilon:String = String::from("");
+
+    for (i, elem) in one_counters.iter().enumerate() {
+        
+            if *elem > line_counter/2 {
+                gamma.push('1');
+                epsilon.push('0')
+            }else{
+                gamma.push('0');
+                epsilon.push('1')
+            }
+    }    
+
+    //let bin_idx = "01110011001";
+    let gamma_val = isize::from_str_radix(&gamma, 2).unwrap();
+    let epsilon_val = isize::from_str_radix(&epsilon, 2).unwrap();
+
+    println!("{}", line_counter);
+    println!("{:?}", one_counters);
+    println!("gamma: {}, epsilon:  {}", gamma,epsilon);
+    println!("gamma_val: {}, epsilon_val:  {} result: {} ", gamma_val,epsilon_val, gamma_val*epsilon_val);
     Ok(result)
 }
 
