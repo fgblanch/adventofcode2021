@@ -241,7 +241,7 @@ fn findRating(numbers:Vec<String>, most_common:bool, bit_number:u32) -> Result<S
 
 
 fn day3_b(input_path:String) -> Result<String, Error> {
-    let result:String = String::from("");
+    
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
     let mut numbers:Vec<String> = Vec::new();
@@ -262,10 +262,31 @@ fn day3_b(input_path:String) -> Result<String, Error> {
 
     println!("oxygen: {}, co2: {}",oxygen_rating_val,co2_rating_val);
     println!("result: {}",oxygen_rating_val*co2_rating_val);
-   
+    let result:String = format!("{}",oxygen_rating_val*co2_rating_val);
+
     Ok(result)
 }
 
+// TODO: Create struct representing a board
+
+
+fn day4(input_path:String) -> Result<String, Error> {
+    
+    let input = File::open(input_path)?;
+    let buffered = BufReader::new(input);    
+
+    let mut line_counter:u32 = 0;
+    let mut drawn_numbers:Vec<u32> = Vec::new();
+    let mut boards:Vec<[u32; 12]> = Vec::new();
+
+    for line in buffered.lines() {        
+        let current:String = line?;
+     
+    }
+    
+    let result:String = String::from("");
+    Ok(result)
+}
 
 fn main() -> Result<(), Error> {
     //day1_a("day1_input.txt".to_string())?;
@@ -273,8 +294,11 @@ fn main() -> Result<(), Error> {
     //let result:String = day1_b("./input/day1_input.txt".to_string()).unwrap(); // Answer: 1516
     //let result:String = day2("./input/day2_input.txt".to_string()).unwrap();
 
-    let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
+    //let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
     //let result:String = day3_b("./tests/day3_b_test.txt".to_string()).unwrap();
+
+    let result:String = day4("./input/day4_input.txt".to_string()).unwrap();
+
     Ok(())
 }
 
