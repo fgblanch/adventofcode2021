@@ -276,14 +276,25 @@ fn day4(input_path:String) -> Result<String, Error> {
     let buffered = BufReader::new(input);    
 
     let mut line_counter:u32 = 0;
-    let mut drawn_numbers:Vec<u32> = Vec::new();
-    let mut boards:Vec<[u32; 12]> = Vec::new();
+    let mut drawn_numbers:Vec<&str> = Vec::new();
+    let mut boards:Vec<[&str; 25]> = Vec::new();
 
-    for line in buffered.lines() {        
-        let current:String = line?;
-     
+    for line in buffered.lines() {    
+        let temp_line = line.unwrap().clone();    
+
+
+        if line_counter == 0 { // retrieving random numbers
+            let temp_vec:Vec<&str> = temp_line.split(',').collect(); 
+            drawn_numbers = temp_vec.to_vec();
+            println!("{:?}",drawn_numbers);
+
+        }
+
+        line_counter = line_counter + 1;
     }
     
+    println!("{:?}",drawn_numbers);
+
     let result:String = String::from("");
     Ok(result)
 }
@@ -297,7 +308,7 @@ fn main() -> Result<(), Error> {
     //let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
     //let result:String = day3_b("./tests/day3_b_test.txt".to_string()).unwrap();
 
-    let result:String = day4("./input/day4_input.txt".to_string()).unwrap();
+    let result:String = day4("./input/day4.txt".to_string()).unwrap();
 
     Ok(())
 }
