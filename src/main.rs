@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
 use regex::Regex;
-
+use std::fmt;
 
 fn day1_a(input_path:String) -> Result<(), Error> {
 
@@ -267,8 +267,75 @@ fn day3_b(input_path:String) -> Result<String, Error> {
     Ok(result)
 }
 
-// TODO: Create struct representing a board
+#[derive(PartialEq, Debug)]
+struct  BingoCard{
+    board: Vec<BingoCell>
+}
 
+impl BingoCard {
+    fn new() -> BingoCard {
+        BingoCard{
+            board: Vec::new()
+        }
+    }
+
+    fn has_winner(&self) -> bool {
+        false
+    }
+
+    fn mark_number(&mut self, number:String){
+        let index:u32 = number.parse().unwrap();
+        self.board[index as usize].mark();
+        ()
+    }
+
+    fn add_number(&mut self, number:String){
+        let cell:BingoCell = BingoCell{
+            value: number,
+            checked: false
+        };
+        self.board.push(cell);
+        ()
+    }
+
+    fn sum_not_marked(&self) -> u32 {
+        let mut sum:u32 = 0;
+        for number in self.board.iter(){
+            if !number.checked{
+                let temp_parse:u32 = number.value.parse().unwrap();
+                sum = sum + temp_parse;
+            }
+        }
+        sum
+    }
+}
+
+impl fmt::Display for BingoCard {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut result:String = String::from("");
+        for cell in self.board.iter(){
+            if cell.checked{
+                result = result + "**" + &cell.value + "** "
+            }else{
+                result = result + &cell.value + " "
+            }
+        }
+        result = result + "\n";
+        write!(f, "{} ", result)
+    }
+}
+
+#[derive(PartialEq, Debug)]
+struct  BingoCell{
+    value: String,
+    checked: bool
+}
+
+impl BingoCell {
+    fn mark(&mut self){
+        self.checked = true
+    }    
+}
 
 fn day4(input_path:String) -> Result<String, Error> {
     
@@ -276,25 +343,53 @@ fn day4(input_path:String) -> Result<String, Error> {
     let buffered = BufReader::new(input);    
 
     let mut line_counter:u32 = 0;
-    let mut drawn_numbers:Vec<&str> = Vec::new();
-    let mut boards:Vec<[&str; 25]> = Vec::new();
+    let mut drawn_numbers:Vec<String> = Vec::new();
+    let mut boards:Vec<BingoCard> = Vec::new();
 
+    let mut current_board:BingoCard = BingoCard::new();
     for line in buffered.lines() {    
-        let temp_line = line.unwrap().clone();    
-
+        let temp_line = line.unwrap();        
 
         if line_counter == 0 { // retrieving random numbers
             let temp_vec:Vec<&str> = temp_line.split(',').collect(); 
-            drawn_numbers = temp_vec.to_vec();
-            println!("{:?}",drawn_numbers);
-
+            for number in temp_vec {
+                drawn_numbers.push(String::from(number));
+            }
+        }else{
+            if (temp_line.len() as u32) > 0u32 {
+                let temp_vec:Vec<&str> = temp_line.split(' ').collect(); 
+                for number in temp_vec {
+                    if number.len() > 0{               
+                        current_board.add_number(String::from(number))
+                    }
+                }
+            }else{
+                // check if last baord is valid and add it to the vector of boards                
+                if current_board.board.len() > 0{
+                    boards.push(current_board);
+                    // create a new temp board                 
+                    current_board = BingoCard::new();
+                }
+            }
         }
 
         line_counter = line_counter + 1;
     }
-    
-    println!("{:?}",drawn_numbers);
 
+    if current_board.board.len() > 0{ // We push the last board
+        boards.push(current_board);
+    }
+
+    for number in drawn_numbers{
+        println!("Number: {}", number);
+        let number_to_mark = &number;
+
+        for board in boards.iter(){
+            board.mark_number(String::from(number_to_mark));
+            println!("{}",board)     
+        }
+
+    }
     let result:String = String::from("");
     Ok(result)
 }
@@ -308,7 +403,7 @@ fn main() -> Result<(), Error> {
     //let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
     //let result:String = day3_b("./tests/day3_b_test.txt".to_string()).unwrap();
 
-    let result:String = day4("./input/day4.txt".to_string()).unwrap();
+    let result:String = day4("./tests/day4.txt".to_string()).unwrap();
 
     Ok(())
 }
