@@ -269,12 +269,14 @@ fn day3_b(input_path:String) -> Result<String, Error> {
 
 #[derive(PartialEq, Debug)]
 struct  BingoCard{
+    size: u32,
     board: Vec<BingoCell>
 }
 
 impl BingoCard {
     fn new() -> BingoCard {
         BingoCard{
+            size: 0,
             board: Vec::new()
         }
     }
@@ -284,18 +286,25 @@ impl BingoCard {
     }
 
     fn mark_number(&mut self, number:String){
-        let index:u32 = number.parse().unwrap();
-        self.board[index as usize].mark();
+        for cell in self.board.iter_mut(){
+            if cell.value == number{
+                cell.mark()
+            }
+        }
         ()
     }
 
     fn add_number(&mut self, number:String){
-        let cell:BingoCell = BingoCell{
-            value: number,
-            checked: false
-        };
-        self.board.push(cell);
-        ()
+        if (self.board.len() as u32) < (self.size *  self.size){
+            let cell:BingoCell = BingoCell{
+                value: number,
+                checked: false
+            };
+            self.board.push(cell);
+            ()
+        }else{
+            panic!("Adding more numbers to board than its size.")
+        }
     }
 
     fn sum_not_marked(&self) -> u32 {
@@ -313,12 +322,18 @@ impl BingoCard {
 impl fmt::Display for BingoCard {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut result:String = String::from("");
+        let mut i:u32 = 0;
         for cell in self.board.iter(){
             if cell.checked{
-                result = result + "**" + &cell.value + "** "
+                result = result + "(" + &cell.value + ") "
             }else{
                 result = result + &cell.value + " "
             }
+            if i % self.size == (self.size-1) {
+                result = result + "\n"
+            }
+
+            i+=1;
         }
         result = result + "\n";
         write!(f, "{} ", result)
@@ -384,8 +399,8 @@ fn day4(input_path:String) -> Result<String, Error> {
         println!("Number: {}", number);
         let number_to_mark = &number;
 
-        for board in boards.iter(){
-            board.mark_number(String::from(number_to_mark));
+        for board in boards.iter_mut(){
+            (*board).mark_number(String::from(number_to_mark));
             println!("{}",board)     
         }
 
