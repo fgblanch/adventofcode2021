@@ -282,7 +282,21 @@ impl BingoCard {
     }
 
     fn has_winner(&self) -> bool {
-        false
+        let mut has_winner = false;
+        if self.board.len() as u32 == (self.size*self.size){            
+            
+            for i  in 0..self.size{
+                let mut row_winner = true;
+                let mut col_winner = true;
+                for j  in 0..self.size{
+                    row_winner= row_winner & self.board[(i*self.size + j) as usize].checked;
+                    col_winner= col_winner & self.board[(i+j*self.size) as usize].checked;
+                }
+                has_winner = has_winner | row_winner | col_winner
+            }            
+
+        }
+        has_winner 
     }
 
     fn mark_number(&mut self, number:String){
@@ -395,15 +409,26 @@ fn day4(input_path:String) -> Result<String, Error> {
         boards.push(current_board);
     }
 
+    let mut we_have_a_winner = false;
+
     for number in drawn_numbers{
         println!("Number: {}", number);
         let number_to_mark = &number;
 
         for board in boards.iter_mut(){
             (*board).mark_number(String::from(number_to_mark));
-            println!("{}",board)     
+            println!("{}",board);                        
+            if (*board).has_winner(){
+                we_have_a_winner = true;
+                println!("WINNER!");
+                println!("Number: {} Result: {}",  number_to_mark, (*board).sum_not_marked());
+                break;
+            }
         }
 
+        if we_have_a_winner{
+            break;
+        }
     }
     let result:String = String::from("");
     Ok(result)
@@ -418,7 +443,7 @@ fn main() -> Result<(), Error> {
     //let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
     //let result:String = day3_b("./tests/day3_b_test.txt".to_string()).unwrap();
 
-    let result:String = day4("./tests/day4.txt".to_string()).unwrap();
+    let result:String = day4("./input/day4.txt".to_string()).unwrap();
 
     Ok(())
 }
