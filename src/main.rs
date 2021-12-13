@@ -276,7 +276,7 @@ struct  BingoCard{
 impl BingoCard {
     fn new() -> BingoCard {
         BingoCard{
-            size: 0,
+            size: 5,
             board: Vec::new()
         }
     }
@@ -325,9 +325,9 @@ impl fmt::Display for BingoCard {
         let mut i:u32 = 0;
         for cell in self.board.iter(){
             if cell.checked{
-                result = result + "(" + &cell.value + ") "
+                result = result + "(" + &cell.value + ")\t"
             }else{
-                result = result + &cell.value + " "
+                result = result + &cell.value + "\t"
             }
             if i % self.size == (self.size-1) {
                 result = result + "\n"
