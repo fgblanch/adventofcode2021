@@ -3,18 +3,6 @@ use std::io::{BufReader, BufRead, Error};
 use regex::Regex;
 use std::collections::HashMap;
 
-
-#[derive(PartialEq, Debug)]
-struct Line {
-    x1: u32,
-    y1: u32, 
-    x2: u32,
-    y2: u32
-}
-
-
-
-
 fn day5(input_path:String) -> Result<String, Error> {
     
     let input = File::open(input_path)?;
@@ -43,13 +31,9 @@ fn day5(input_path:String) -> Result<String, Error> {
                 if vents.get(&key) != None {
                     val = *vents.get(&key).unwrap()
                 }
-                
-                println!("{}",key);
                 vents.insert(key, val +1);
             }
-        }
-
-        if y1 == y2 {
+        }else if y1 == y2 {
             let x_min = x1.min(x2);
             let x_max = x1.max(x2);
             for i in x_min..x_max+1{
@@ -58,14 +42,34 @@ fn day5(input_path:String) -> Result<String, Error> {
                 
                 if vents.get(&key) != None {
                     val = *vents.get(&key).unwrap()
-                }
-                
+                }                
                 vents.insert(key, val +1);
             }
+        } else { 
+            
+            // check diagonal 45 degrees
+            let x_min = x1.min(x2);
+            let x_max = x1.max(x2);
+            let y_min = y1.min(y2);
+            let y_max = y1.max(y2);
+            
+            if (x_max-x_min) == (y_max-y_min) {
+                let mut y_iter:u32 = y_min;
+
+                for i in x_min..x_max+1{
+                    let key:String = format!("{},{}",i,y_iter);                
+                    let mut val:u32 = 0;
+                    
+                    if vents.get(&key) != None {
+                        val = *vents.get(&key).unwrap()
+                    }                
+                    vents.insert(key, val +1);
+                    y_iter+=1;
+                }
+            }
+            
         }
     }
-
-    println!("{:?}",vents);
 
     let mut vent_counter = 0;
     for key in vents.keys() {
@@ -92,7 +96,7 @@ fn main() -> Result<(), Error> {
 
     //let result:String = day4("./input/day4.txt".to_string(), false).unwrap();
 
-    let result:String = day5("./input/day5.txt".to_string()).unwrap();
+    let result:String = day5("./tests/day5.txt".to_string()).unwrap();
 
     Ok(())
 }
