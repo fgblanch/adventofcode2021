@@ -366,7 +366,7 @@ impl BingoCell {
     }    
 }
 
-fn day4(input_path:String) -> Result<String, Error> {
+fn day4(input_path:String, a_or_b:bool) -> Result<String, Error> { // true for part a and false for b
     
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);    
@@ -409,25 +409,56 @@ fn day4(input_path:String) -> Result<String, Error> {
         boards.push(current_board);
     }
 
-    let mut we_have_a_winner = false;
+    if a_or_b{
+        let mut we_have_a_winner = false;
 
-    for number in drawn_numbers{
-        println!("Number: {}", number);
-        let number_to_mark = &number;
+        for number in drawn_numbers{
+            println!("Number: {}", number);
+            let number_to_mark = &number;
 
-        for board in boards.iter_mut(){
-            (*board).mark_number(String::from(number_to_mark));
-            println!("{}",board);                        
-            if (*board).has_winner(){
-                we_have_a_winner = true;
-                println!("WINNER!");
-                println!("Number: {} Result: {}",  number_to_mark, (*board).sum_not_marked());
+            for board in boards.iter_mut(){
+                (*board).mark_number(String::from(number_to_mark));
+                println!("{}",board);                        
+                if (*board).has_winner(){
+                    we_have_a_winner = true;
+                    println!("WINNER!");
+                    println!("Number: {} Result: {}",  number_to_mark, (*board).sum_not_marked());
+                    break;
+                }
+            }
+
+            if we_have_a_winner {
                 break;
             }
+            
         }
+    }else{ // Part B
+        
+        let mut winner_boards = true;
 
-        if we_have_a_winner{
-            break;
+        for number in drawn_numbers{
+            println!("Number: {}", number);
+            let number_to_mark = &number;
+
+            winner_boards = true;
+            for board in boards.iter_mut(){
+                (*board).mark_number(String::from(number_to_mark));
+                
+                
+                let is_a_winner = (*board).has_winner();
+                if !is_a_winner{
+                    println!("{}",board);                        
+                    println!("LOSER!");
+                    println!("Number: {} Result: {}",  number_to_mark, (*board).sum_not_marked());
+                }
+
+                winner_boards = winner_boards &  is_a_winner
+            }
+
+            if winner_boards {
+                break;
+            }
+            
         }
     }
     let result:String = String::from("");
@@ -443,7 +474,7 @@ fn main() -> Result<(), Error> {
     //let result:String = day3_b("./input/day3_input.txt".to_string()).unwrap();
     //let result:String = day3_b("./tests/day3_b_test.txt".to_string()).unwrap();
 
-    let result:String = day4("./input/day4.txt".to_string()).unwrap();
+    let result:String = day4("./input/day4.txt".to_string(), false).unwrap();
 
     Ok(())
 }
