@@ -33,30 +33,50 @@ fn day5(input_path:String) -> Result<String, Error> {
         let mut x2:u32 = caps.get(3).unwrap().as_str().parse().unwrap();
         let mut y2:u32 = caps.get(4).unwrap().as_str().parse().unwrap();
 
-        // Resort the coordinates 
-        if x1 > x2{
-            for i in x2..x1+1{
-                // rellenar casillas x manteniendo y
-            }
-        }else{
-            for i in x1..x2+1{
-                // rellenar casillas x manteniendo y
-            }
-        }
-
-        if y1 > y2{
-            for i in y2..y1+1{
-                // rellenar casillas y manteniendo x
-            }
-        }else{
-            for i in y1..y2+1{
-                // rellenar casillas y manteniendo x
+        if x1 == x2 {
+            let y_min = y1.min(y2);
+            let y_max = y1.max(y2);
+            for i in y_min..y_max+1{
+                let key:String = format!("{},{}",x1,i);                
+                let mut val:u32 = 0;
+                
+                if vents.get(&key) != None {
+                    val = *vents.get(&key).unwrap()
+                }
+                
+                println!("{}",key);
+                vents.insert(key, val +1);
             }
         }
 
+        if y1 == y2 {
+            let x_min = x1.min(x2);
+            let x_max = x1.max(x2);
+            for i in x_min..x_max+1{
+                let key:String = format!("{},{}",i,y1);                
+                let mut val:u32 = 0;
+                
+                if vents.get(&key) != None {
+                    val = *vents.get(&key).unwrap()
+                }
+                
+                vents.insert(key, val +1);
+            }
+        }
     }
-    
-    let result:String = String::from("result!");
+
+    println!("{:?}",vents);
+
+    let mut vent_counter = 0;
+    for key in vents.keys() {
+        let val = *vents.get(key).unwrap();
+        if val > 1 {
+            vent_counter+=1;
+        }
+    }
+
+    let result:String = format!("Vent counter:{}",vent_counter);
+    println!("Vent counter: {}",vent_counter);
 
     Ok(result)
 }
@@ -72,7 +92,7 @@ fn main() -> Result<(), Error> {
 
     //let result:String = day4("./input/day4.txt".to_string(), false).unwrap();
 
-    let result:String = day5("./tests/day5.txt".to_string()).unwrap();
+    let result:String = day5("./input/day5.txt".to_string()).unwrap();
 
     Ok(())
 }
