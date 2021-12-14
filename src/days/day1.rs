@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
 
-
 fn day1_a(input_path:String) -> Result<(), Error> {
 
     let input = File::open(input_path)?;
