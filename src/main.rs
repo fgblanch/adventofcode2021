@@ -32,7 +32,7 @@ fn compute_fuel( crabs:&Vec<u32>, position:u32)->u32{
             fuel+=i;
         }
 
-        println!("From {} to {} steps: {} fuel: {}", *crab, position, steps, fuel);
+        //println!("From {} to {} steps: {} fuel: {}", *crab, position, steps, fuel);
         result+=fuel;
     }
 
