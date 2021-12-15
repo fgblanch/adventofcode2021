@@ -19,11 +19,21 @@ fn compute_fuel( crabs:&Vec<u32>, position:u32)->u32{
     let mut result:u32 = 0;
 
     for crab in crabs{
+        let steps:u32;
+        let mut fuel:u32 = 0;
+
         if *crab > position{
-            result += crab-position;
+            steps = crab-position;
         }else{
-            result += position-crab;
+            steps = position-crab;
         }
+        
+        for i in 1..steps+1{
+            fuel+=i;
+        }
+
+        println!("From {} to {} steps: {} fuel: {}", *crab, position, steps, fuel);
+        result+=fuel;
     }
 
     result
@@ -32,26 +42,22 @@ fn compute_fuel( crabs:&Vec<u32>, position:u32)->u32{
 fn search_alignment(crabs:&Vec<u32>, min_pos:u32, max_pos:u32)->u32{
     let pos_result:u32;        
 
-    println!(" Searching between {},{} ", min_pos, max_pos);
-
-    let min_crab:u32 = crabs[min_pos as usize];
-    let max_crab:u32 = crabs[max_pos as usize];
-
-    let min_val:u32 = compute_fuel(&crabs, min_crab);
-    let max_val:u32 = compute_fuel(&crabs, max_crab);
+    let min_val:u32 = compute_fuel(&crabs, min_pos);
+    let max_val:u32 = compute_fuel(&crabs, max_pos);
 
 
     if max_pos-min_pos>1{ // keep recursion
 
-        println!(" Searching between {},{}  fuel: {},{}", min_pos, max_pos, min_val,max_val);
+        println!(" Searching between {},{} fuel: {},{}", min_pos, max_pos, min_val,max_val);
         
-        let new_pos:u32 = (min_pos + max_pos) / 2;
+        let new_pos:u32 = ((min_pos + max_pos) as f64 / 2.0).floor() as u32;
         if min_val < max_val {
             pos_result =search_alignment(crabs, min_pos, new_pos);
         }else{
-            pos_result =search_alignment(crabs, new_pos,max_pos);
+            pos_result =search_alignment(crabs, new_pos, max_pos);
         }                
     }else{                
+        println!(" Searching between {},{} fuel: {},{}", min_pos, max_pos, min_val,max_val);
         if min_val < max_val {
             pos_result = min_pos;
         }else{
@@ -79,9 +85,11 @@ fn day7(input_path:String) -> Result<String, Error> {
     crabs.sort();
     println!("Length:{} crabs:{:?}", crabs.len(), crabs);
 
-    let pos_final = search_alignment(&crabs, 0, (crabs.len()-1) as u32);
-    let fuel_final = compute_fuel(&crabs, crabs[pos_final as usize]);
+    let pos_final = search_alignment(&crabs, crabs[0], crabs[crabs.len()-1] as u32);
+
+    let fuel_final = compute_fuel(&crabs, pos_final);
     println!(" Alignment position: {} fuel: {}", pos_final, fuel_final);
+    
     let result:String = format!("{}", fuel_final);
     
     Ok(result)
