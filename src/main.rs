@@ -37,6 +37,7 @@ fn day8(input_path:String) -> Result<String, Error> {
     let mut four:String = String::new(); // four
     let mut three:String = String::new();
     let mut seven:String = String::new();
+    let mut six_d:String = String::new();
 
     for line in buffered.lines() { 
         let current:String = line?;
@@ -74,17 +75,21 @@ fn day8(input_path:String) -> Result<String, Error> {
         encoder.insert(String::from("7"),three.clone());
         encoder.insert(String::from("8"),seven.clone());
 
-        for signal in &signals_temp{
-            if signal.trim().len() == 6 {
-                println!("Two: {} Six candidate: {}",two,signal.trim());
+        for signal in &signals_temp{            
+            if signal.trim().len() == 6 {                
                 // this can be either number 0,6 or 9
-                if signal.contains(two.chars().nth(0).unwrap()){
-                    // 0 or 9
+                
+                let mut has_all_three_segments = true;
+                for segment in two.chars(){
+                    has_all_three_segments = has_all_three_segments &  signal.contains(segment);
+                }                                
+                
+                if has_all_three_segments{
+                    // 6 or 9
                     let mut has_all_segments = true;
                     for segment in four.chars(){
                         has_all_segments = has_all_segments &  signal.contains(segment);
-                    }
-                     
+                    }                     
                     if has_all_segments{
                         // 9 = signal
                         encoder.insert(String::from("9"),String::from(signal.trim()));
@@ -95,24 +100,55 @@ fn day8(input_path:String) -> Result<String, Error> {
                 }else{
                     // 6 = signal
                     encoder.insert(String::from("6"),String::from(signal.trim()));
+                    six_d = String::from(signal.trim());
                 }
             }
-            if signal.trim().len() == 5 {
+        }
+
+
+        for signal in &signals_temp{
+            if signal.trim().len() == 5 {                
+                
+                let mut segments_match_one = 0;
+                for segment in two.chars(){
+                    if signal.contains(segment) {
+                        segments_match_one+=1;
+                    }                    
+                }
+                
+                if segments_match_one >1{ // it is number 3!
+                    encoder.insert(String::from("3"),String::from(signal.trim()));
+                }else{
+                    let mut segments_match_six = 0;
+                    for segment in six_d.chars(){
+                        if signal.contains(segment) {
+                            segments_match_six+=1;
+                        }                    
+                    }
+
+                    if segments_match_six == 5{ // it is number 5!
+                        encoder.insert(String::from("5"),String::from(signal.trim()));
+                    }else{ // it is number 2"
+                        encoder.insert(String::from("2"),String::from(signal.trim()));
+                    }
+                }                                
+                
                 // this can be either number 2,3 or 5
-                if signal.contains(two.chars().nth(1).unwrap()){
+                /*if signal.contains(two.chars().nth(1).unwrap()){
                     if signal.contains(two.chars().nth(0).unwrap()){
                         // 3 = signal
-                        encoder.insert(String::from("3"),String::from(signal.trim()));
+                        
                     }else{
-                        // 5 = signal
-                        encoder.insert(String::from("5"),String::from(signal.trim()));
+                        // 2 = signal
+                        encoder.insert(String::from("2"),String::from(signal.trim()));
                     }
                 }else{
-                    // 2 = signal
-                    encoder.insert(String::from("2"),String::from(signal.trim()));
-                }
-            }            
+                    // 5 = signal
+                    encoder.insert(String::from("5"),String::from(signal.trim()));
+                }*/
+            }
         }
+
 
         println!("#2:{} #3:{} #4:{} #7:{}", two,three,four,seven);
         println!("{:?}", encoder);        
@@ -142,7 +178,7 @@ fn day8(input_path:String) -> Result<String, Error> {
 
 
 fn main() -> Result<(), Error> {
-    let result:String = day8("./test/day8.txt".to_string()).unwrap();
+    let result:String = day8("./input/day8.txt".to_string()).unwrap();
     println!("{}", result);
 
     Ok(())
