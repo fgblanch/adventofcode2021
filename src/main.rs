@@ -17,24 +17,30 @@ fn day_n(input_path:String) -> Result<String, Error> {
     Ok(result)
 }
 
-fn find_paths(connections:&HashMap<String,Vec<String>>, current_path: &mut Vec<String>, current_node:String ) -> Vec<String>{
-    let mut result:Vec<String> = Vec::new();
+fn find_paths(connections:&HashMap<String,Vec<String>>, current_path: &mut Vec<String>, current_node:String ) -> Vec<Vec<String>>{
+    let mut result:Vec<Vec<String>> = Vec::new();
 
     let current_conns:&Vec<String> = connections.get(&current_node).unwrap();
     current_path.push(current_node.clone());
 
     for cave in current_conns{
-        println!("{:?}",current_path);
-        println!("{}",cave);
-        if (cave != "start") & (cave != "end") & 
-            ( !cave.chars().nth(0).unwrap().is_lowercase()  | 
+        println!("testing {:?} + {}?  in path?: {} lowercase?: {} ",current_path, cave, current_path.contains(cave),cave.chars().nth(0).unwrap().is_lowercase());        
+        if (cave != "start") & 
+           (cave != "end") & 
+           (!cave.chars().nth(0).unwrap().is_lowercase()  | 
               (cave.chars().nth(0).unwrap().is_lowercase() & !current_path.contains(cave))){           
-           let mut temp_vec: Vec<String> = find_paths(connections, current_path, String::from(cave));
+           println!("Entra 1 - sigue buscando");
+           let mut temp_vec: Vec<Vec<String>> = find_paths(connections, current_path, String::from(cave));
            result.append(&mut temp_vec);
-        }else{
-            if cave != "start"{
+        }else{            
+            if cave != "start" &&  (cave.chars().nth(0).unwrap().is_lowercase() & !current_path.contains(cave)){                
                 current_path.push(String::from(cave));
-                result.append(&mut current_path.to_vec());
+                println!("Entra 2 - suma cadena: {:?}",current_path);            
+                result.push(current_path.to_vec()); 
+                current_path.pop();
+                println!("y echa patras: {:?}",current_path);            
+            }else{
+                println!("Fin Mal camino");
             }
         }
     }
@@ -64,7 +70,11 @@ fn day12(input_path:String) -> Result<String, Error> {
     println!("{:?}",connections);
 
     let mut  current_path = Vec::new();
-    let result: Vec<String> =find_paths(&connections, &mut current_path, String::from("start"));
+    let result: Vec<Vec<String>> =find_paths(&connections, &mut current_path, String::from("start"));
+
+    for comb in &result{
+        println!("{:?}", comb);
+    }
 
 
     let result:String = format!("{:?}",result);
@@ -73,7 +83,7 @@ fn day12(input_path:String) -> Result<String, Error> {
 }
 
 fn main() -> Result<(), Error> {
-    let result:String = day12("./test/day12_a.txt".to_string()).unwrap();
+    let result:String = day12("./input/day12.txt".to_string()).unwrap();
     println!("result: {}", result);
 
     Ok(())
