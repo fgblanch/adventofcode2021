@@ -32,7 +32,7 @@ fn find_paths(connections:&HashMap<String,Vec<String>>, current_path: &mut Vec<S
            let mut temp_vec: Vec<String> = find_paths(connections, current_path, String::from(cave));
            result.append(&mut temp_vec);
         }else{
-            if (cave != "start"){
+            if cave != "start"{
                 current_path.push(String::from(cave));
                 result.append(&mut current_path.to_vec());
             }
