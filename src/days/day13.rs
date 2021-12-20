@@ -44,6 +44,8 @@ fn day13(input_path:String) -> Result<String, Error> {
     let mut points_read:Vec<Point> = Vec::new();
     let mut instructions:Vec<Instruction> = Vec::new();
 
+    let re = Regex::new(r"^fold along (x|y)=(\d+)$").unwrap();
+
     for line in buffered.lines() {        
         let current:String = line?; 
         if current != ""{
@@ -58,7 +60,7 @@ fn day13(input_path:String) -> Result<String, Error> {
                 points_read.push(point);
             }else{
                 // get folding instructions
-                let re = Regex::new(r"^fold along (x|y)=(\d+)$").unwrap();
+                
                 let caps = re.captures(&current).unwrap();
                 let x_or_y;
                 if caps.get(1).unwrap().as_str() == "x"{
