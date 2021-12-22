@@ -46,8 +46,8 @@ fn day14(input_path:String) -> Result<String, Error> {
     println!("input:{} expansions:{:?}",input_comp, expansions);
 
     let mut window:String = String::from("");
-    let mut occurences:HashMap<String,u32> = HashMap::new();
-    let mut occurences_chars:HashMap<String,u32> = HashMap::new();
+    let mut occurences:HashMap<String,u64> = HashMap::new();
+    let mut occurences_chars:HashMap<String,u64> = HashMap::new();
 
     for c in input_comp.chars(){
         if window.len() < 2{
@@ -66,37 +66,41 @@ fn day14(input_path:String) -> Result<String, Error> {
 
 
     }
-    println!("{:?}",occurences);
-    println!("{:?}",occurences_chars);
+    
 
-    for i in 0..10{
+    for i in 0..40{
         println!("Step: {}", i);
-        let mut new_occurences:HashMap<String,u32> = HashMap::new();
+        println!("{:?}",occurences_chars);
+        println!("{:?}",occurences);
+        
+
+        let mut new_occurences:HashMap<String,u64> = HashMap::new();
 
         for key in occurences.keys(){
+           
             
             let new_polymer:&String = expansions.get(key).unwrap();                
             let new_key_a:String = format!("{}{}",key.chars().nth(0).unwrap().to_string(),new_polymer);
             let new_key_b:String = format!("{}{}",new_polymer,key.chars().nth(1).unwrap().to_string(),);
 
             let counter_a = new_occurences.entry(new_key_a.to_string()).or_default();
-            *counter_a+=1;
+            *counter_a+=occurences.get(key).unwrap();
 
             let counter_b = new_occurences.entry(new_key_b.to_string()).or_default();
-            *counter_b+=1;        
-            
+            *counter_b+=occurences.get(key).unwrap();        
             let counter_c = occurences_chars.entry(new_polymer.to_string()).or_default();
             *counter_c+=occurences.get(key).unwrap();
+            
+            
                            
         }
 
-        occurences = new_occurences;
-         println!("{:?}",occurences);
-        println!("{:?}",occurences_chars);
+        occurences = new_occurences;     
     }
-
-    println!("{:?}",occurences);
+    
     println!("{:?}",occurences_chars);
+    println!("{:?}",occurences);
+    
     
         
     let result:String = format!("{:?}",occurences_chars);
@@ -105,7 +109,7 @@ fn day14(input_path:String) -> Result<String, Error> {
 }
 
 fn main() -> Result<(), Error> {
-    let result:String = day14("./test/day14.txt".to_string()).unwrap();
+    let result:String = day14("./input/day14.txt".to_string()).unwrap();
     println!("result: {}", result);
 
     Ok(())
