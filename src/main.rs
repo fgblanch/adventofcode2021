@@ -1,7 +1,5 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
-use regex::Regex;
-use std::collections::HashMap;
 
 
 fn day_n(input_path:String) -> Result<String, Error> {
@@ -18,90 +16,134 @@ fn day_n(input_path:String) -> Result<String, Error> {
     Ok(result)
 }
 
-fn day14(input_path:String) -> Result<String, Error> {
+#[derive(PartialEq, Debug, Clone, Copy)]
+struct Point{
+    row:u32,
+    col:u32
+}
+
+fn find_path(risk_levels: &[[u8; 10]; 10], point:&Point, cost:u32, path: &mut Vec<Point>) -> u32 {
+    let mut result:u32 = 0;
+
+    println!("{:?}, cost:{}", point, cost);
+
+    if (point.row == (risk_levels.len()-1) as u32) & (point.col==(risk_levels[risk_levels.len()-1 as usize].len()-1) as u32) {
+        // we are at the end cell, add it to the path and return
+        //path.push(point.clone());
+        result = cost;
+    }else{
+        // evaluate the possible directions and it not in path keep recursing
+        let mut new_pos:Point = point.clone();        
+        let mut new_cost:u32 = cost;
+        let mut winner_point:Point = point.clone();        
+
+        println!("right? {}",point.col < (risk_levels[risk_levels.len()-1 as usize].len()-1) as u32);
+
+        // right
+        if point.col < (risk_levels[risk_levels.len()-1 as usize].len()-1) as u32{
+            new_pos = Point{ row: point.row, col: point.col+1};
+                if !path.contains(&new_pos){
+                path.push(new_pos.clone());
+                new_cost = cost + find_path(risk_levels, &new_pos, cost + risk_levels[new_pos.row as usize][new_pos.col as usize] as u32, path);
+                
+                if new_cost < result{
+                    result = new_cost;
+                    winner_point = new_pos;
+                }
+
+                path.pop(); 
+            }
+        }
+        
+        if point.row < (risk_levels.len()-1) as u32{       // down
+            new_pos = Point{ row: point.row+1, col: point.col};
+            if !path.contains(&new_pos){
+                path.push(new_pos.clone());
+                new_cost = cost + find_path(risk_levels, &new_pos, cost + risk_levels[new_pos.row as usize][new_pos.col as usize] as u32, path);
+
+                if new_cost < result{
+                    result = new_cost;
+                    winner_point = new_pos;
+                }
+
+                path.pop(); 
+            }
+        }
+        
+        
+        if point.col > 0 { // left
+            new_pos = Point{ row: point.row, col: point.col-1};            
+            if !path.contains(&new_pos){
+                path.push(new_pos.clone());
+                new_cost = cost + find_path(risk_levels, &new_pos, cost + risk_levels[new_pos.row as usize][new_pos.col as usize] as u32, path);
+
+                if new_cost < result{
+                    result = new_cost;
+                    winner_point = new_pos;
+                }
+
+                path.pop();
+            }
+        }
+        
+        if point.row> 0 { // up
+            new_pos = Point{ row: point.row-1, col: point.col};           
+            if !path.contains(&new_pos){
+                path.push(new_pos.clone());
+                new_cost = cost + find_path(risk_levels, &new_pos, cost + risk_levels[new_pos.row as usize][new_pos.col as usize] as u32, path);
+
+                if new_cost < result{
+                    result = new_cost;
+                    winner_point = new_pos;
+                }
+
+                path.pop();
+            }
+        }
+
+        
+    }
+
+    result
+}
+
+
+fn day15(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
     
-    let re:Regex = Regex::new(r"^([A-Z]+) -> ([A-Z]+)$").unwrap();
-    let mut expansions:HashMap<String,String> = HashMap::new();
-    let mut input_comp:String = String::new();
-    let mut first_line:bool = true;
+    let mut risk_levels: [[u8; 10]; 10] = [[0;10];10]; // test data
+//    let mut risk_levels: [[u8; 100]; 100] = [[0;100];100];  // input  data
+
+    let mut line_counter:u8 = 0;
 
     for line in buffered.lines() {        
         let current:String = line?; 
-        //let temp_vec:Vec<&str> = current.split(',').collect();     
-        if first_line{
-            if current == "" {
-                first_line = false;
-            }else{
-                input_comp=current;
-            }
-        }else{
-            let caps = re.captures(&current).unwrap();
-            expansions.insert(String::from(caps.get(1).unwrap().as_str()),
-                              String::from(caps.get(2).unwrap().as_str()));
+        for (i,elem) in current.chars().enumerate(){
+            risk_levels[line_counter as usize][i] = String::from(elem).parse().unwrap();
         }
+        line_counter+=1;
     }
 
-    println!("input:{} expansions:{:?}",input_comp, expansions);
+    println!("{}", line_counter);
+    println!("{:?}",risk_levels);
+    println!("Size: {} {}",risk_levels.len(),risk_levels[risk_levels.len()-1 as usize].len());
 
-    let mut window:String = String::from("");
-    let mut occurences:HashMap<String,u32> = HashMap::new();
 
-    for c in input_comp.chars(){
-        if window.len() < 2{
-            window.push(c);
-        }else{
-            window = window.chars().nth(1).unwrap().to_string();
-            window.push(c)
-        }
-        if window.len() == 2{
-            let counter = occurences.entry(window.to_string()).or_default();
-            *counter+=1;
-        }
-    }
+    let new_pos = Point{ row: 0, col: 0};
+    let mut path:Vec<Point> = Vec::new();
+    path.push(new_pos.clone());
+    let result = find_path(&risk_levels, &new_pos, 0, &mut path);
 
-    println!("{:?}",occurences);
-
-    for i in 0..10{
-        println!("Step: {}", i);
-        let mut new_occurences:HashMap<String,u32> = HashMap::new();
-        for key in occurences.keys(){
-            
-            let new_polymer:&String = expansions.get(key).unwrap();                
-            let new_key_a:String = format!("{}{}",key.chars().nth(0).unwrap().to_string(),new_polymer);
-            let new_key_b:String = format!("{}{}",new_polymer,key.chars().nth(1).unwrap().to_string(),);
-
-            let counter = new_occurences.entry(new_key_a.to_string()).or_default();
-            *counter+=1;
-
-            let counter = new_occurences.entry(new_key_b.to_string()).or_default();
-            *counter+=1;
-            
-                           
-        }
-        occurences = new_occurences;
-        println!("{:?}",occurences);
-    }
-
-    println!("{:?}",occurences);
-
-    let mut occurences_chars:HashMap<String,u32> = HashMap::new();
-    for key in occurences.keys(){
-        for c in key.chars(){
-            let counter = occurences_chars.entry(String::from(c)).or_default();
-            *counter+=occurences.get(key).unwrap();
-        }
-    }   
-    
-    
-    let result:String = format!("{:?}",occurences_chars);
+    let result:String = format!("{}",result);
     
     Ok(result)
 }
 
+
 fn main() -> Result<(), Error> {
-    let result:String = day14("./test/day14.txt".to_string()).unwrap();
+    // let result:String = day15("./input/day15.txt".to_string()).unwrap(); //input data
+    let result:String = day15("./test/day15.txt".to_string()).unwrap(); // test data
     println!("result: {}", result);
 
     Ok(())
