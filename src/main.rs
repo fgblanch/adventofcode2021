@@ -40,15 +40,13 @@ fn get_min_point(points_to_visit: &Vec<Point>, distances:&HashMap<Point, u32>) -
     result
 }
 
-
-
-const NODES_ARRAY_LEN: usize = 100; // test data
+const NODES_ARRAY_LEN: usize = 10; // test data
 
 fn day15(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
     
-    let mut risk_levels: [[u8; NODES_ARRAY_LEN]; NODES_ARRAY_LEN] = [[0;NODES_ARRAY_LEN];NODES_ARRAY_LEN]; 
+    let mut risk_levels: [[u8; NODES_ARRAY_LEN*5]; NODES_ARRAY_LEN*5] = [[0;NODES_ARRAY_LEN*5];NODES_ARRAY_LEN*5]; 
     
     let mut points_to_visit:Vec<Point> = Vec::new();
     let mut distances:HashMap<Point, u32> = HashMap::new();
@@ -60,13 +58,22 @@ fn day15(input_path:String) -> Result<String, Error> {
     for line in buffered.lines() {        
         let current:String = line?; 
         for (i,elem) in current.chars().enumerate(){
-            risk_levels[line_counter as usize][i] = String::from(elem).parse().unwrap();
-            let tmp_point = Point{ row: line_counter, col: i as u32};
+            for _j in 0..4{
+                for _k in 0..4{
+                    risk_levels[(line_counter+(_j*5)) as usize][i+(_k*5)] = String::from(elem).parse().unwrap();           
+                }
+            }
+        }
+        line_counter+=1;
+    }
+
+    for _i in 0..risk_levels.len(){
+        for _j in 0..risk_levels.len(){
+            let tmp_point = Point{ row: _i as u32, col: _j as u32};
             points_to_visit.push(tmp_point);
             distances.insert(tmp_point, u32::MAX);
             prevs.insert(tmp_point, Point{ row: 0, col:0});
         }
-        line_counter+=1;
     }
 
     println!("{}", line_counter);
@@ -75,18 +82,17 @@ fn day15(input_path:String) -> Result<String, Error> {
 
     let mut source:&mut u32 = distances.get_mut(&Point{ row: 0, col:0}).unwrap();
     *source = 0;
+    // TODO: change target to new size
     let target = Point{col: (NODES_ARRAY_LEN-1) as u32 ,row: (NODES_ARRAY_LEN-1) as u32};
 
-
+    let mut point_distance:u32 = 0;
     
     println!("{:?}", distances);
 
     while !points_to_visit.is_empty(){
           let index:u32 = get_min_point(&points_to_visit, &distances);
           let point:Point = points_to_visit.remove(index as usize);
-          let point_distance:u32 = distances.get(&point).unwrap().clone();
-
-            println!("{:?}", point);
+          point_distance = distances.get(&point).unwrap().clone();
 
             // Check if point is the target.
             if point == target{
@@ -130,19 +136,19 @@ fn day15(input_path:String) -> Result<String, Error> {
     }
 
 
-    println!("{:?}", distances);
-    println!("{:?}", prevs);
+    //println!("{:?}", distances);
+    //println!("{:?}", prevs);
 
 
-    let result:String = format!("0");
+    let result:String = format!("{}",point_distance);
     
     Ok(result)
 }
 
 
 fn main() -> Result<(), Error> {
-    let result:String = day15("./input/day15.txt".to_string()).unwrap(); //input data
-    //let result:String = day15("./test/day15.txt".to_string()).unwrap(); // test data
+    //let result:String = day15("./input/day15.txt".to_string()).unwrap(); //input data
+    let result:String = day15("./test/day15.txt".to_string()).unwrap(); // test data
     println!("result: {}", result);
 
     Ok(())
