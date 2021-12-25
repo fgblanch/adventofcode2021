@@ -40,7 +40,7 @@ fn get_min_point(points_to_visit: &Vec<Point>, distances:&HashMap<Point, u32>) -
     result
 }
 
-const NODES_ARRAY_LEN: usize = 10; // test data
+const NODES_ARRAY_LEN: usize = 100; // test data
 
 fn day15(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
@@ -61,10 +61,20 @@ fn day15(input_path:String) -> Result<String, Error> {
             for j in 0..5{
                 for k in 0..5{
                     let orig_val:u8 = String::from(elem).parse().unwrap();
+                    let mut new_val:u16 = orig_val as u16 + j as u16 + k as u16;
+
+                    if new_val > 9{
+                        if new_val == 18{
+                            new_val = 1;
+                        }else{
+                            new_val = new_val-9;
+                        }
+                    }
+
                     risk_levels
                     [(line_counter+(j*NODES_ARRAY_LEN as u32)) as usize]
                     [i+(k*NODES_ARRAY_LEN as u32) as usize] 
-                    = (orig_val + j as u8 + k as u8) % 10;           
+                    = new_val as u8;           
                 }
             }
         }
@@ -86,8 +96,8 @@ fn day15(input_path:String) -> Result<String, Error> {
 
     let mut source:&mut u32 = distances.get_mut(&Point{ row: 0, col:0}).unwrap();
     *source = 0;
-    // TODO: change target to new size
-    let target = Point{col: (NODES_ARRAY_LEN-1) as u32 ,row: (NODES_ARRAY_LEN-1) as u32};
+    
+    let target = Point{col: ((NODES_ARRAY_LEN*5)-1) as u32 ,row: ((NODES_ARRAY_LEN*5)-1) as u32};
 
     let mut point_distance:u32 = 0;
     
@@ -97,6 +107,7 @@ fn day15(input_path:String) -> Result<String, Error> {
           let index:u32 = get_min_point(&points_to_visit, &distances);
           let point:Point = points_to_visit.remove(index as usize);
           point_distance = distances.get(&point).unwrap().clone();
+          println!("Checking! {:?} {}", point, point_distance);
 
             // Check if point is the target.
             if point == target{
@@ -107,12 +118,12 @@ fn day15(input_path:String) -> Result<String, Error> {
                 let mut neighbors:Vec<Point> = Vec::new();
                 
                 // right
-                if point.col < (NODES_ARRAY_LEN-1) as u32{
+                if point.col < ((NODES_ARRAY_LEN*5)-1) as u32{
                     neighbors.push(Point{ row: point.row, col: point.col+1});
                 }
 
                 // down
-                if point.row < (NODES_ARRAY_LEN-1) as u32{
+                if point.row < ((NODES_ARRAY_LEN*5)-1) as u32{
                     neighbors.push(Point{ row: point.row+1, col: point.col});
                 }
 
@@ -151,8 +162,8 @@ fn day15(input_path:String) -> Result<String, Error> {
 
 
 fn main() -> Result<(), Error> {
-    //let result:String = day15("./input/day15.txt".to_string()).unwrap(); //input data
-    let result:String = day15("./test/day15.txt".to_string()).unwrap(); // test data
+    let result:String = day15("./input/day15.txt".to_string()).unwrap(); //input data
+    //let result:String = day15("./test/day15.txt".to_string()).unwrap(); // test data
     println!("result: {}", result);
 
     Ok(())
