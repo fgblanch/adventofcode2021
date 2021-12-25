@@ -58,9 +58,13 @@ fn day15(input_path:String) -> Result<String, Error> {
     for line in buffered.lines() {        
         let current:String = line?; 
         for (i,elem) in current.chars().enumerate(){
-            for _j in 0..4{
-                for _k in 0..4{
-                    risk_levels[(line_counter+(_j*5)) as usize][i+(_k*5)] = String::from(elem).parse().unwrap();           
+            for j in 0..5{
+                for k in 0..5{
+                    let orig_val:u8 = String::from(elem).parse().unwrap();
+                    risk_levels
+                    [(line_counter+(j*NODES_ARRAY_LEN as u32)) as usize]
+                    [i+(k*NODES_ARRAY_LEN as u32) as usize] 
+                    = (orig_val + j as u8 + k as u8) % 10;           
                 }
             }
         }
@@ -78,7 +82,7 @@ fn day15(input_path:String) -> Result<String, Error> {
 
     println!("{}", line_counter);
     println!("{:?}",risk_levels);
-    println!("Size: {} {}",risk_levels.len(),risk_levels[risk_levels.len()-1 as usize].len());
+    //println!("Size: {} {}",risk_levels.len(),risk_levels[risk_levels.len()-1 as usize].len());
 
     let mut source:&mut u32 = distances.get_mut(&Point{ row: 0, col:0}).unwrap();
     *source = 0;
@@ -87,7 +91,7 @@ fn day15(input_path:String) -> Result<String, Error> {
 
     let mut point_distance:u32 = 0;
     
-    println!("{:?}", distances);
+    //println!("{:?}", distances);
 
     while !points_to_visit.is_empty(){
           let index:u32 = get_min_point(&points_to_visit, &distances);
