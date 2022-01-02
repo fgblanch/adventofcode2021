@@ -1,8 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error};
 
-
-
 fn day_n(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
     let buffered = BufReader::new(input);
@@ -17,8 +15,7 @@ fn day_n(input_path:String) -> Result<String, Error> {
     Ok(result)
 }
 
- enum ReadingState {
-    
+ enum ReadingState {    
     PacketStart,
     LiteralValue,
     Operator
@@ -41,7 +38,11 @@ fn sum_version_numbers(binary_sequence:&String, index:usize, state:ReadingState)
             }
         },            
         ReadingState::LiteralValue => {
-            // devolver 0
+            let mut found_last_group:bool = false;
+            
+            while !found_last_group{
+                found_last_group =  true;¡
+            }
         },
         ReadingState::Operator => {
             // para cada uno de los subpaquetes hacer llamada recursiva al paquete con estado inicial e indice
