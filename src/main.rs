@@ -39,10 +39,20 @@ fn sum_version_numbers(binary_sequence:&String, index:usize, state:ReadingState)
         },            
         ReadingState::LiteralValue => {
             let mut found_last_group:bool = false;
-            
+            let mut index_offset:usize = 0; 
+            let mut value:String = String::new();
+
             while !found_last_group{
-                found_last_group =  true;¡
+                let group:&str = &binary_sequence[index+index_offset..(index+index_offset+5)];
+                println!("{}",group);
+                value.push_str(&binary_sequence[index+index_offset+1..(index+index_offset+5)]);
+                if &group[0..1] == "0"{
+                    found_last_group = true;
+                }else{
+                    index_offset+=5;
+                }
             }
+            println!("{}",u32::from_str_radix(&value.to_string(), 2).unwrap());
         },
         ReadingState::Operator => {
             // para cada uno de los subpaquetes hacer llamada recursiva al paquete con estado inicial e indice
