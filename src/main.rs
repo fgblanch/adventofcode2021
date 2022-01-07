@@ -136,8 +136,9 @@ fn calculate_value(binary_sequence:&String, index:usize) -> (u64,usize) {
                 
             }
             index_limit = index_after_header+ index_offset;
-
-            println!("Literal value: {} length: {}",u64::from_str_radix(&value.to_string(), 2).unwrap(), index_limit);        
+            result = u64::from_str_radix(&value.to_string(), 2).unwrap();
+            println!("Literal value: {} length: {}",result, index_limit);        
+            
     }else{       
         println!("====================Operator");            
         let length_type_id:&str = &binary_sequence[index_after_header..index_after_header+1];        
@@ -180,6 +181,8 @@ fn calculate_value(binary_sequence:&String, index:usize) -> (u64,usize) {
             index_limit = new_index;
         }
 
+        
+
         result = match type_id {
             "000" => {  // sum
                 let mut result_value:u64 = 0;
@@ -189,22 +192,58 @@ fn calculate_value(binary_sequence:&String, index:usize) -> (u64,usize) {
                 result_value
             }, 
             "001" => { // product
-                let mut result_value:u64 = 0;
-                for op in operands{
+                let mut result_value:u64 = 1;
+                for op in operands {
                     result_value*= op;
                 }
                 result_value
             },                
-            "010" => {0}, // min
-            "011" => {0}, // max
-            "101" => {0}, // gt
-            "110" => {0}, // lt
-            "111" => {0}, // eq
+            "010" => { // min
+                let mut result_value:u64 = u64::MAX;                
+                for op in operands{
+                    result_value= result_value.min(op);
+                }
+                result_value
+            },
+            "011" => {  // max
+                let mut result_value:u64 = u64::MIN;                
+                for op in operands{
+                    result_value= result_value.max(op);
+                }
+                result_value
+            },
+            "101" => {  // gt
+                let mut result_value:u64 = 0;
+                if operands.len() > 1{
+                    if operands[0] > operands[1]{
+                        result_value = 1;
+                    }
+                }
+                result_value
+            },
+            "110" => { // lt
+                let mut result_value:u64 = 0;
+                if operands.len() > 1{
+                    if operands[0] < operands[1]{
+                        result_value = 1;
+                    }
+                }
+                result_value
+            },
+            "111" => { // eq
+                let mut result_value:u64 = 0;
+                if operands.len() > 1{
+                    if operands[0] == operands[1]{
+                        result_value = 1;
+                    }
+                }
+                result_value
+            }, 
             &_ => { panic!("operation not supported")}
         }
     }
     
-    println!("result: {}, index_limit:{}", result, index_limit);
+    println!("Operator result: {}, index_limit:{}", result, index_limit);
     (result, index_limit)
 }
 
@@ -251,8 +290,8 @@ fn day16(input_path:String) -> Result<String, Error> {
 
 
 fn main() -> Result<(), Error> {
-    //let result:String = day16("./input/day16.txt".to_string()).unwrap(); //input data
-    let result:String = day16("./test/day16.txt".to_string()).unwrap(); // test data
+    let result:String = day16("./input/day16.txt".to_string()).unwrap(); //input data
+    //let result:String = day16("./test/day16.txt".to_string()).unwrap(); // test data
     println!("result: {}", result);
 
     Ok(())
