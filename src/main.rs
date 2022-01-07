@@ -20,49 +20,91 @@ fn day_n(input_path:String) -> Result<String, Error> {
     LiteralValue,
     Operator
 }
-
-
-fn sum_version_numbers(binary_sequence:&String, index:usize, state:ReadingState) -> u32{
+// Returns a tuple with the sum and the last sequence index for the current package
+fn sum_version_numbers(binary_sequence:&String, index:usize, state:ReadingState) -> (u32,usize) {
     let mut result:u32 = 0;
+    let mut index_limit:usize = binary_sequence.len();
     
     match state {
         ReadingState::PacketStart => {
+            println!("===========Packet start");
             let version:&str = &binary_sequence[index..(index+3)];
             let type_id:&str = &binary_sequence[(index+3)..(index+6)];
             println!("version: {}/{}  type: {}/{}",version,u8::from_str_radix(version, 2).unwrap(),
                                                        type_id,u8::from_str_radix(type_id, 2).unwrap());            
+            
+            let mut next_state = ReadingState::Operator;
             if type_id == "100"{ // Literal value
-                result = u8::from_str_radix(version, 2).unwrap() as u32  + sum_version_numbers(binary_sequence,index+6,ReadingState::LiteralValue);
-            }else{ // operator
-
+                next_state = ReadingState::LiteralValue;                
             }
+
+            let result_tuple = sum_version_numbers(binary_sequence,index+6,next_state);
+
+            result = u8::from_str_radix(version, 2).unwrap() as u32  + result_tuple.0;
+            index_limit =  result_tuple.1;
         },            
         ReadingState::LiteralValue => {
+            println!("===========Literal Value");   
             let mut found_last_group:bool = false;
             let mut index_offset:usize = 0; 
             let mut value:String = String::new();
 
             while !found_last_group{
                 let group:&str = &binary_sequence[index+index_offset..(index+index_offset+5)];
-                println!("{}",group);
+                println!("group: {}",group); 
                 value.push_str(&binary_sequence[index+index_offset+1..(index+index_offset+5)]);
                 if &group[0..1] == "0"{
                     found_last_group = true;
-                }else{
-                    index_offset+=5;
                 }
+                index_offset+=5;
+                
             }
-            println!("{}",u32::from_str_radix(&value.to_string(), 2).unwrap());
+            index_limit = index+ index_offset;
+
+            println!("Literal value: {} length: {}",u64::from_str_radix(&value.to_string(), 2).unwrap(), index_limit);
         },
         ReadingState::Operator => {
-            // para cada uno de los subpaquetes hacer llamada recursiva al paquete con estado inicial e indice
+            println!("===========Operator");            
+            let length_type_id:&str = &binary_sequence[index..index+1];
+            
+            if length_type_id == "0"{ // total length: 15 bits 
+                let bit_length:u32 = u32::from_str_radix(&binary_sequence[index+1..index+16], 2).unwrap();
+                println!("bit length: {}",bit_length);
+                
+                let packets_start:usize = index+16;
+                let mut new_index:usize = packets_start;
+
+                while new_index < packets_start + bit_length as usize{
+                    println!("new_index:{} limit:{}", new_index, packets_start + bit_length as usize);
+                    let result_tuple = sum_version_numbers(binary_sequence,new_index,ReadingState::PacketStart);
+                    println!("result_tuple:{:?} ", result_tuple);
+                    result += result_tuple.0;
+                    new_index = result_tuple.1;
+                    println!("NEW new_index:{} ", new_index);
+                }
+
+                index_limit = new_index;
+
+            }else if length_type_id == "1"{ // number of subpackets: 11 bits
+                let packets_length = u32::from_str_radix(&binary_sequence[index+1..index+12], 2).unwrap();
+                println!("# packets: {}",packets_length);
+
+                let packets_start:usize = index+12;
+                let mut new_index:usize = packets_start;
+
+                for i in 0..packets_length{ // La longitud de los sub packets es dinámica
+                    let result_tuple = sum_version_numbers(binary_sequence,new_index,ReadingState::PacketStart);
+                    result += result_tuple.0;    
+                    new_index = result_tuple.1;
+                }
+
+                index_limit = new_index;
+            }
         }
     }
-
-    result
+    println!("result: {}, index_limit:{}", result, index_limit);
+    (result, index_limit)
 }
-
-
 
 fn day16(input_path:String) -> Result<String, Error> {
     let input = File::open(input_path)?;
@@ -93,21 +135,18 @@ fn day16(input_path:String) -> Result<String, Error> {
                 _   =>&()
             };
         }
-        println!("{}",binary_input);
-        //assert_eq!("11101110000000001101010000001100100000100011000001100000", binary_input);
-        sum_version_numbers(&binary_input,0,ReadingState::PacketStart);
-
+        println!("{} lenght: {}",binary_input, binary_input.len());
+        //assert_eq!("11101110000000001101010000001100100000100011000001100000", binary_input);        
     }
-
-    let result:String = format!("result");
-    
+    let result_value = sum_version_numbers(&binary_input,0,ReadingState::PacketStart);
+    let result:String = format!("{:?}", result_value);    
     Ok(result)
 }
 
 
 fn main() -> Result<(), Error> {
-    //let result:String = day16("./input/day16.txt".to_string()).unwrap(); //input data
-    let result:String = day16("./test/day16.txt".to_string()).unwrap(); // test data
+    let result:String = day16("./input/day16.txt".to_string()).unwrap(); //input data
+    //let result:String = day16("./test/day16.txt".to_string()).unwrap(); // test data
     println!("result: {}", result);
 
     Ok(())
